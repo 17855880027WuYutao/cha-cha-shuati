@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>刷题页布局预览</title>
+<style>
+:root{
+  --bg:#f7f5f0; --card:#fff; --ink:#23282b; --muted:#8a8a82; --line:#e7e3d9;
+  --accent:#2c5a5f; --accent-soft:#e6efee; --ok:#2f6b46; --bad:#b3372f; --warn:#b26a1f;
+  --single:#2c5a5f; --multi:#8a5a2b; --judge:#5d4b8a; --fill:#2f6b46;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);overflow:hidden;
+  font:16px/1.55 -apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft Yahei",system-ui,sans-serif;
+}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column}
+.top{
+  display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;color:var(--muted);
+  background:var(--bg);border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.top .bar{flex:1;height:5px;background:#eeece5;border-radius:99px;overflow:hidden}
+.top .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.jump{font-size:11px;color:var(--accent);background:var(--accent-soft);border:0;padding:4px 9px;border-radius:8px;font-weight:600}
+button{font:inherit;border:0;background:none;color:inherit;padding:0}
+
+/* 中间区：三种排法 */
+.main{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;padding:10px 12px}
+.mode-now .cardwrap{padding-top:0}
+.mode-center .cardwrap{margin:auto 0;padding:8px 0}
+.cardwrap{flex:0 0 auto;width:100%}
+.card{
+  border:1px solid var(--line);border-left:3px solid var(--single);border-radius:14px;
+  background:var(--card);padding:12px;
+}
+.card.multi{border-left-color:var(--multi)}
+.qhead{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.pill{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.pill.multi{background:#f3e8da;color:var(--multi)}
+.qid{font-size:12px;color:var(--muted);font-weight:600}
+.flag{margin-left:auto;font-size:11px;color:var(--bad);display:none}
+.card.flagged .flag{display:block}
+.stem{font-size:15.5px;line-height:1.62}
+.opts{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.opt{
+  display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fbfaf7;
+  border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px;line-height:1.5;
+  transition:border-color .15s,background .15s,transform .09s;
+}
+.opt:active{transform:scale(.985)}
+.opt .k{flex:0 0 22px;height:22px;border-radius:50%;background:#eceae2;color:#6a675d;font-size:12px;font-weight:700;text-align:center;line-height:22px}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .k{background:var(--accent);color:#fff}
+.opt.ok{border-color:var(--ok);background:#edf6f0}
+.opt.ok .k{background:var(--ok);color:#fff}
+.opt.no{border-color:var(--bad);background:#fdf0ee}
+.opt.no .k{background:var(--bad);color:#fff}
+.fb{margin-top:12px;border-radius:12px;padding:10px 13px;font-size:14px;display:none}
+.fb{animation:fb .18s ease both}
+.fb.on{display:block}
+.cta{display:flex;justify-content:center;margin-top:12px;min-height:46px;align-items:center}
+.cta .go{min-width:54%;max-width:320px;background:var(--accent);color:#fff;border-radius:12px;padding:13px 18px;font-size:15px;font-weight:600}
+.cta .go.ghost{background:var(--accent-soft);color:var(--accent)}
+.cta{display:flex;justify-content:center;margin-top:12px;min-height:46px;align-items:center}
+.cta .go{min-width:54%;max-width:320px;background:var(--accent);color:#fff;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:600}
+.cta .go:active{transform:scale(.96)}
+.fb.ok{background:#edf6f0;color:#245c3a}
+.fb.no{background:#fdf0ee;color:#8f2b22}
+@keyframes fb{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* 底部：答题卡 + 工具条 */
+.bottom{flex:0 0 auto;background:var(--card);border-top:1px solid var(--line);padding:8px 12px calc(10px + env(safe-area-inset-bottom))}
+.cardbtn{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  background:var(--accent-soft);color:var(--accent);border-radius:12px;padding:10px 14px;
+  font-size:14px;font-weight:600;
+}
+.cardbtn .hintx{font-weight:400;font-size:12px;color:#5d807f}
+.tools{display:flex;gap:8px;margin-top:8px}
+.tool{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  background:#fbfaf7;border:1px solid var(--line);border-radius:12px;padding:8px 4px;
+  font-size:11.5px;color:#5c5c55;
+}
+.tool .ic{font-size:17px;line-height:1.1}
+.tool.on{background:#fff6e5;border-color:#ecd3a2;color:#8a5a2b}
+.tool.on .ic{filter:saturate(1.4)}
+
+/* 答题卡面板 */
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;background:var(--card);border-radius:18px 18px 0 0;
+  padding:14px 14px calc(16px + env(safe-area-inset-bottom));transform:translateY(110%);
+  transition:transform .24s cubic-bezier(.22,.8,.36,1);z-index:20;box-shadow:0 -10px 30px rgba(0,0,0,.12);
+  max-height:70vh;overflow-y:auto;
+}
+.sheet.open{transform:none}
+.sheet h3{font-size:15px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between}
+.sheet h3 .legend{font-size:11px;font-weight:400;color:var(--muted);display:flex;gap:10px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:1px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.cell{aspect-ratio:1;border-radius:9px;background:#f1efe8;color:#6a675d;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600}
+.cell.ok{background:#dcefe2;color:#245c3a}
+.cell.no{background:#f7dbd7;color:#8f2b22}
+.cell.cur{background:var(--accent);color:#fff;box-shadow:0 0 0 2px rgba(44,90,95,.2)}
+.bgmask{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(30,34,36,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:15}
+.bgmask.on{opacity:1;pointer-events:auto}
+
+/* 方案切换 */
+.switch{
+  position:fixed;top:8px;right:8px;z-index:30;display:flex;gap:4px;background:#fff;
+  border:1px solid var(--line);border-radius:99px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+.switch button{font-size:11px;padding:5px 9px;border-radius:99px;color:#6a675d}
+.switch button.on{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<div id="app" class="mode-now">
+  <div class="top">
+    <span id="prog">9/50</span>
+    <span id="stat">对 8 · 错 0</span>
+    <span class="bar"><i id="barfill" style="width:18%"></i></span>
+    <button class="jump">退出</button>
+  </div>
+
+  <div class="main" id="main">
+    <div class="cardwrap">
+      <div class="card" id="card">
+        <div class="qhead">
+          <span class="pill" id="typepill">单选</span>
+          <span class="qid" id="qid">单选题-9</span>
+          <span class="flag" id="flag">已标记</span>
+        </div>
+        <div class="stem" id="stem"></div>
+        <div class="opts" id="opts"></div>
+        <div class="fb" id="fb"></div>
+        <div class="cta" id="cta"></div>
+        <div class="cta" id="cta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom" id="bottom">
+    <button class="cardbtn" id="cardbtn">
+      <span>答题卡</span><span class="hintx" id="cardsub">9/50 · 已答 8</span>
+    </button>
+    <div class="tools">
+      <button class="tool" id="t-fav"><span class="ic">☆</span><span>收藏</span></button>
+      <button class="tool" id="t-flag"><span class="ic">⚑</span><span>标记</span></button>
+      <button class="tool" id="t-tts"><span class="ic">🔊</span><span>朗读题干</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="bgmask" id="mask"></div>
+<div class="sheet" id="sheet">
+  <h3>答题卡 · 50 题
+    <span class="legend"><span><i class="dot" style="background:#dcefe2"></i>对</span><span><i class="dot" style="background:#f7dbd7"></i>错</span><span><i class="dot" style="background:#f1efe8"></i>未答</span></span>
+  </h3>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="switch" id="switch">
+  <button data-m="now" class="on">现状</button>
+  <button data-m="center">方案A</button>
+  <button data-m="minimal">方案B</button>
+</div>
+
+<script>
+const QS = [
+  {
+    id: '单选题-9', type: 'single', pill: '单选',
+    stem: '“十五五”规划纲要草案提出的重大战略任务突出体现在四个方面，下列不属于这四个方面的是 ▲ 。',
+    opts: ['突出推动高质量发展', '突出做强国内大循环', '突出加快农业现代化进程', '突出推进全体人民共同富裕'],
+    ans: 'B'
+  },
+  {
+    id: '多选题-43', type: 'multi', pill: '多选',
+    stem: '改革有力度，以攻坚之勇破除发展壁垒。2026年政府工作报告部署的一系列改革举措，从纵深推进 ▲ ，到推进 ▲ ，再到充分激发各类经营主体活力，直击痛点、靶向发力。',
+    opts: ['财税金融体制改革', '高水平社会主义市场经济体制建设', '公平竞争审查刚性约束', '全国统一大市场建设'],
+    ans: 'AD'
+  }
+];
+let qi = 0, picked = new Set(), done = false, mode = 'now';
+const answered = {}; // 模拟：前 8 题已答对
+for (let i = 1; i <= 8; i++) answered[i] = 'ok';
+
+const $ = (s) => document.querySelector(s);
+const TYPES = { single: '单选', multi: '多选' };
+
+function renderQ() {
+  const q = QS[qi];
+  picked = new Set(); done = false;
+  $('#typepill').textContent = q.pill;
+  $('#typepill').className = 'pill' + (q.type === 'multi' ? ' multi' : '');
+  $('#qid').textContent = q.id;
+  $('#stem').textContent = q.stem;
+  $('#card').className = 'card' + (q.type === 'multi' ? ' multi' : '');
+  $('#opts').innerHTML = q.opts.map((t, i) => {
+    const k = 'ABCD'[i];
+    return `<button class="opt" data-k="${k}"><span class="k">${k}</span><span>${t}</span></button>`;
+  }).join('');
+  $('#fb').className = 'fb';
+  $('#fb').textContent = '';
+  $('#cta').innerHTML = q.type === 'multi'
+    ? '<button class="go" id="submit">提交答案</button>'
+    : '';
+  const sb = $('#submit');
+  if (sb) sb.addEventListener('click', () => {
+    if (!picked.size) return;
+    judge();
+  });
+  $$('#opts .opt').forEach((b) => b.addEventListener('click', () => pick(b)));
+  updateProgress();
+}
+function $$(s) { return Array.from(document.querySelectorAll(s)); }
+function pick(btn) {
+  if (done) return;
+  const q = QS[qi];
+  const k = btn.dataset.k;
+  if (q.type === 'multi') {
+    if (picked.has(k)) { picked.delete(k); btn.classList.remove('sel'); }
+    else { picked.add(k); btn.classList.add('sel'); }
+    return;
+  }
+  picked = new Set([k]);
+  $$('#opts .opt').forEach((b) => b.classList.toggle('sel', b.dataset.k === k));
+  judge();
+}
+function judge() {
+  const q = QS[qi];
+  const got = [...picked].sort().join('');
+  const ok = got === q.ans;
+  done = true;
+  $$('#opts .opt').forEach((b) => {
+    if (q.ans.includes(b.dataset.k)) b.classList.add('ok');
+    else if (picked.has(b.dataset.k)) b.classList.add('no');
+    b.disabled = true;
+  });
+  const fb = $('#fb');
+  fb.className = 'fb on ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = `<b>${ok ? '✓ 对了' : '✗ 错了'}</b>　正确答案：<b>${q.ans}</b>`;
+  answered[qi + 9] = ok ? 'ok' : 'no';
+  // 判完按钮原地变「下一题」，位置就在刚才提交按钮那里
+  $('#cta').innerHTML = '<button class="go" id="nextbtn">下一题</button>';
+  $('#nextbtn').addEventListener('click', () => { qi = (qi + 1) % QS.length; renderQ(); });
+  updateProgress();
+}
+function updateProgress() {
+  const answeredCount = Object.keys(answered).length;
+  $('#prog').textContent = `9/50`;
+  $('#stat').textContent = `对 ${Object.values(answered).filter((x) => x === 'ok').length} · 错 ${Object.values(answered).filter((x) => x === 'no').length}`;
+  $('#barfill').style.width = (9 / 50 * 100) + '%';
+  $('#cardsub').textContent = `9/50 · 已答 ${answeredCount}`;
+  renderGrid();
+}
+function renderGrid() {
+  let h = '';
+  for (let i = 1; i <= 50; i++) {
+    let cls = 'cell';
+    if (answered[i] === 'ok') cls += ' ok';
+    else if (answered[i] === 'no') cls += ' no';
+    if (i === 9 + qi) cls += ' cur';
+    h += `<button class="${cls}" data-i="${i}">${i}</button>`;
+  }
+  $('#grid').innerHTML = h;
+  $$('#grid .cell').forEach((b) => b.addEventListener('click', () => {
+    const i = +b.dataset.i;
+    if (i >= 9 && i <= 10) { qi = i - 9; renderQ(); }
+    closeSheet();
+  }));
+}
+
+/* 方案切换 */
+$$('#switch button').forEach((b) => b.addEventListener('click', () => {
+  mode = b.dataset.m;
+  $$('#switch button').forEach((x) => x.classList.toggle('on', x === b));
+  const app = $('#app');
+  app.className = 'mode-' + (mode === 'now' ? 'now' : mode === 'center' ? 'center' : 'center');
+  // B 方案：只居中，隐藏底部区
+  $('#bottom').style.display = mode === 'minimal' ? 'none' : '';
+  $('#card').classList.toggle('minimal', mode === 'minimal');
+}));
+
+/* 答题卡 */
+function openSheet() { $('#sheet').classList.add('open'); $('#mask').classList.add('on'); }
+function closeSheet() { $('#sheet').classList.remove('open'); $('#mask').classList.remove('on'); }
+$('#cardbtn').addEventListener('click', openSheet);
+$('#mask').addEventListener('click', closeSheet);
+
+/* 收藏 / 标记 / 朗读 */
+let fav = false, flagged = false;
+$('#t-fav').addEventListener('click', () => {
+  fav = !fav;
+  $('#t-fav').classList.toggle('on', fav);
+  $('#t-fav .ic').textContent = fav ? '★' : '☆';
+});
+$('#t-flag').addEventListener('click', () => {
+  flagged = !flagged;
+  $('#t-flag').classList.toggle('on', flagged);
+  $('#card').classList.toggle('flagged', flagged);
+});
+$('#t-tts').addEventListener('click', () => {
+  try {
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance($('#stem').textContent);
+    u.lang = 'zh-CN'; u.rate = 0.95;
+    speechSynthesis.speak(u);
+    $('#t-tts').classList.add('on');
+    u.onend = () => $('#t-tts').classList.remove('on');
+  } catch (e) { /* ignore */ }
+});
+
+/* 假数据：让答题卡有颜色 */
+answered[3] = 'no';
+renderQ();
+</script>
+</body>
+</html>
